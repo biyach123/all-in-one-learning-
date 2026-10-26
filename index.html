@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>All-in-One Learning & Smart</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header id="top">
+        <h1>All-in-One Learning & Smart</h1>
+        <p>Your Learning, Research and Smart Tools Platform</p>
+
+        <!-- NAVIGATION -->
+        <nav>
+            <button onclick="showSection('home')">Home</button>
+            <button onclick="showSection('search')">Smart Search</button>
+            <button onclick="showSection('calculator')">Calculator</button>
+            <button onclick="showSection('resources')">Resources</button>
+            <button onclick="showSection('login')">Login / Sign Up</button>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- HOME SECTION -->
+        <section id="home" class="section">
+            <h2>Welcome to All-in-One Learning & Smart</h2>
+
+            <p>
+                Learn new skills, explore useful resources
+                and discover smart tools in one place.
+            </p>
+
+            <button onclick="showSection('topics')">
+                Explore Topics
+            </button>
+        </section>
+
+        <!-- EXPLORE TOPICS -->
+        <section id="topics" class="section">
+            <h2>Explore Your Interests</h2>
+
+            <div class="grid">
+                <button onclick="chooseTopic('Mathematics')">
+                    Mathematics
+                </button>
+
+                <button onclick="chooseTopic('Science')">
+                    Science
+                </button>
+
+                <button onclick="chooseTopic('Computer Science')">
+                    Computer Science
+                </button>
+
+                <button onclick="chooseTopic('History')">
+                    History
+                </button>
+
+                <button onclick="chooseTopic('Language')">
+                    Language
+                </button>
+
+                <button onclick="chooseTopic('Business and Economics')">
+                    Business and Economics
+                </button>
+
+                <button onclick="chooseTopic('Technology')">
+                    Technology
+                </button>
+
+                <button onclick="chooseTopic('Art and Design')">
+                    Art and Design
+                </button>
+            </div>
+        </section>
+
+        <!-- SMART SEARCH -->
+        
+<section id="search" class="section">
+
+    <h2>Smart Learning Search</h2>
+
+    <p>Search any topic to explore learning resources.</p>
+
+    <input
+        type="search"
+        id="topic-input"
+        placeholder="Search a topic, e.g. Artificial Intelligence"
+    >
+
+    <button type="button" onclick="searchResearch()">
+        Search
+    </button>
+
+    <p id="searchmessage" aria-live="polite"></p>
+
+    
+</section>
+
+
+        <!-- CALCULATOR -->
+        
+<!-- SMART CALCULATOR -->
+<section id="calculator" class="section">
+
+    <h2>Smart Calculator</h2>
+    <p>Choose a calculator mode and perform your calculations.</p>
+
+    <label for="calculator-mode">Calculator Mode:</label>
+
+    <select id="calculator-mode">
+        <option value="basic">Basic Calculator</option>
+        <option value="scientific">Scientific Calculator</option>
+        <option value="percentage">Percentage Calculator</option>
+        <option value="power">Powers and Roots</option>
+    </select>
+
+    <div id="basic-calculator">
+        <input type="number" id="number1" placeholder="First number">
+        
+        <select id="operation">
+            <option value="add">Addition (+)</option>
+            <option value="subtract">Subtraction (-)</option>
+            <option value="multiply">Multiplication (×)</option>
+            <option value="divide">Division (÷)</option>
+            <option value="modulo">Remainder (%)</option>
+        </select>
+
+        <input type="number" id="number2" placeholder="Second number">
+
+        <button onclick="calculateBasic()">Calculate</button>
+    </div>
+
+    <div id="scientific-calculator">
+        <input type="number" id="scientific-number" placeholder="Enter a number">
+
+        <select id="scientific-operation">
+            <option value="sqrt">Square Root (√x)</option>
+            <option value="square">Square (x²)</option>
+            <option value="sin">Sine (sin)</option>
+            <option value="cos">Cosine (cos)</option>
+            <option value="tan">Tangent (tan)</option>
+            <option value="log">Logarithm (log₁₀)</option>
+            <option value="ln">Natural Log (ln)</option>
+            <option value="factorial">Factorial (x!)</option>
+        </select>
+
+        <button onclick="calculateScientific()">Calculate</button>
+    </div>
+
+    <div id="percentage-calculator">
+        <input type="number" id="percentage-value" placeholder="Enter total value">
+        <input type="number" id="percentage-rate" placeholder="Enter percentage">
+        <button onclick="calculatePercentage()">Calculate Percentage</button>
+    </div>
+
+    <div id="power-calculator">
+        <input type="number" id="power-number" placeholder="Enter base number">
+        <input type="number" id="power-exponent" placeholder="Enter power or root degree">
+
+        <select id="power-operation">
+            <option value="power">Calculate Power</option>
+            <option value="root">Calculate Root</option>
+        </select>
+
+        <button onclick="calculatePower()">Calculate</button>
+    </div>
+
+    <p id="calculator-result" aria-live="polite">Your result will appear here.</p>
+
+</section>
+
+        <!-- RESOURCES -->
+        <section id="resources" class="section">
+            <h2>Learning Resources</h2>
+
+            <p>Explore useful educational materials.</p>
+
+            <ul>
+                <li>Study Notes</li>
+                <li>Educational Videos</li>
+                <li>Practice Questions</li>
+                <li>Computer Science Resources</li>
+                <li>Useful Learning Tools</li>
+            </ul>
+        </section>
+
+        <!-- LOGIN AND SIGN UP -->
+        
+<section id="login" class="section">
+
+    <h2>Welcome to All-in-One Learning & Smart</h2>
+    <p>Create an account or log in to continue learning.</p>
+
+    <div class="login-box">
+
+        <div class="login-tabs">
+            <button type="button" onclick="showLoginForm('login')">
+                Login
+            </button>
+
+            <button type="button" onclick="showLoginForm('signup')">
+                Sign Up
+            </button>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <h3 id="form-heading">Login to Your Account</h3>
+
+            <label for="login-email">Email Address</label>
+            <input
+                type="email"
+                id="login-email"
+                placeholder="Enter your email"
+                autocomplete="email"
+                required
+            >
+
+            <label for="login-password">Password</label>
+            <input
+                type="password"
+                id="login-password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                minlength="8"
+                required
+            >
+
+            <button type="submit" id="login-submit">
+                Login
+            </button>
+
+            <p id="login-message" aria-live="polite"></p>
+        </form>
+
+    </div>
+</section>
+
+<!-- SEARCH RESULTS PAGE -->
+<section id="results-page" class="section">
+
+    <h2>Search Results</h2>
+
+    <p id="results-topic">Your searched topic will appear here.</p>
+
+    <div class="grid">
+
+        <button onclick="openCategory('Notes & Summaries')">
+            Notes & Summaries
+        </button>
+
+        <button onclick="openCategory('Research Papers')">
+            Research Papers
+        </button>
+
+        <button onclick="openCategory('Articles')">
+            Articles
+        </button>
+
+        <button onclick="openCategory('Video Lectures')">
+          Video Lectures
+        </button>
+
+        <button onclick="openCategory('Questions & MCQs')">
+            Questions & MCQs
+        </button>
+
+        <button onclick="openCategory('Assignments')">
+            Assignments
+        </button>
+
+        <button onclick="openCategory('Experiments & Practicals')">
+            Experiments & Practicals
+        </button>
+
+       <button onclick="showSection('ai-assistant-page')">
+         AI Study Assistant
+        </button>
+        
+    </div>
+    
+    <button onclick="showSection('search')">
+        Back to Search
+    </button>
+
+</section>
+<!-- AI Study Assistant Page -->
+<section id="ai-assistant-page" class="section">
+    <h1>AI Study Assistant</h1>
+    <p>Ask questions, learn new concepts, and explore ideas!</p>
+
+    <div id="chat-messages">
+        <p><strong>AI Assistant:</strong> Hello! What would you like to learn today?</p>
+    </div>
+
+    <input
+        type="text"
+        id="ai-question"
+        placeholder="Ask your question..."
+    >
+
+    <button onclick="askAI()">Send</button>
+    <button onclick="showSection('home')">Back to Home</button>
+</section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>
+            &copy; 2026 All-in-One Learning & Smart.
+            All rights reserved.
+        </p>
+
+        <button onclick="scrollToTop()">Back to Top</button>
+    </footer>
+
+    <!-- JAVASCRIPT FILE -->
+    <script src="script.js"></script>
+
+</body>
+</html>

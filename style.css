@@ -1,0 +1,288 @@
+
+/* GENERAL SETTINGS */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f8ff;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+/* HEADER */
+header {
+    background: linear-gradient(135deg, #123b78, #2878d4);
+    color: white;
+    text-align: center;
+    padding: 35px 20px;
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+header p {
+    font-size: 16px;
+    margin-bottom: 22px;
+}
+
+/* NAVIGATION */
+nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+button {
+    background: #2675d8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+button:hover {
+    background: #164f9c;
+    transform: translateY(-2px);
+}
+
+nav button {
+    background: white;
+    color: #174a91;
+    font-weight: bold;
+}
+
+nav button:hover {
+    background: #dceaff;
+}
+
+/* MAIN CONTENT */
+main {
+    width: 90%;
+    max-width: 1100px;
+    margin: 30px auto;
+}
+
+/* SECTIONS */
+.section {
+    display: block;
+    background: white;
+    padding: 30px;
+    margin-bottom: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(28, 66, 120, 0.09);
+    border: 1px solid #e1ebfa;
+    scroll-margin-top: 20px;
+}
+
+.section h2 {
+    color: #174a91;
+    font-size: 25px;
+    margin-bottom: 12px;
+}
+
+.section p {
+    margin-bottom: 18px;
+}
+
+/* TOPIC CARDS */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.grid button {
+    min-height: 65px;
+    background: #eaf3ff;
+    color: #174a91;
+    border: 1px solid #c8defa;
+    font-weight: bold;
+}
+
+.grid button:hover {
+    background: #d4e7ff;
+}
+
+/* INPUT FIELDS */
+input {
+    width: 100%;
+    max-width: 450px;
+    display: block;
+    padding: 13px;
+    margin: 12px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 15px;
+    background: #ffffff;
+}
+
+input:focus {
+    outline: 2px solid #7bb5ff;
+    border-color: #2675d8;
+}
+
+/* LISTS */
+ul {
+    padding-left: 25px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+/* FOOTER */
+footer {
+    background: #123b78;
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+    margin-top: 35px;
+}
+
+footer p {
+    margin-bottom: 12px;
+}
+
+footer button {
+    background: white;
+    color: #174a91;
+}
+
+/* MOBILE RESPONSIVE DESIGN */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 25px;
+    }
+
+    main {
+        width: 94%;
+        margin: 18px auto;
+    }
+
+    .section {
+        padding: 20px;
+    }
+
+    .section h2 {
+        font-size: 22px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    nav button {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+}
+
+#learning-resources {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 25px;
+}
+
+#learning-resources > div {
+    background: #ffffff;
+    padding: 22px;
+    border: 1px solid #dbeafe;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 60, 130, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#learning-resources > div:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 60, 130, 0.14);
+}
+
+#learning-resources h3 {
+    color: #174ea6;
+    margin-bottom: 10px;
+}
+
+#learning-resources p {
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+#learning-resources a {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 16px;
+    background: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+#learning-resources a:hover {
+    background: #1d4ed8;
+}
+/* AI Study Assistant */
+#ai-assistant-page {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+#ai-assistant-page h1 {
+    color: #1769aa;
+    text-align: center;
+}
+
+#ai-assistant-page p {
+    line-height: 1.6;
+}
+
+#chat-messages {
+    min-height: 200px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 15px;
+    margin: 20px 0;
+    background: #f0f6ff;
+    border-radius: 12px;
+}
+
+#ai-question {
+    width: 70%;
+    padding: 12px;
+    border: 1px solid #b8cce5;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#ai-assistant-page button {
+    padding: 12px 18px;
+    margin: 5px;
+    background: #1769aa;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#ai-assistant-page button:hover {
+    background: #104d80;
+}
