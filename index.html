@@ -322,6 +322,40 @@
         <button onclick="scrollToTop()">Back to Top</button>
     </footer>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtuOuItC7oOYeXuNi0VJ6rjEsvvdLoSaM",
+  authDomain: "all-in-one-learning-2a35c.firebaseapp.com",
+  projectId: "all-in-one-learning-2a35c",
+  storageBucket: "all-in-one-learning-2a35c.firebasestorage.app",
+  messagingSenderId: "190299061756",
+  appId: "1:190299061756:web:e1ca4227a2c9998f404679",
+  measurementId: "G-FWNN120KMB
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  window.firebaseAuth = auth;
+
+  window.firebaseFunctions = {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  };
+</script>
+
     <!-- JAVASCRIPT FILE -->
     <script src="script.js"></script>
 
