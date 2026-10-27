@@ -3,7 +3,8 @@ exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      body: JSON.stringify({ message: "Method not allowed" })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "Method not allowed." })
     };
   }
 
@@ -23,22 +24,29 @@ exports.handler = async function (event) {
       return {
         statusCode: 500,
         body: JSON.stringify({
-          message: "AI service is not configured on Netlify yet."
+          message: "AI API key is not configured in Netlify."
         })
       };
     }
 
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + apiKey,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" +
+        apiKey,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: "You are a helpful study assistant. Explain clearly in simple language. Question: " + question
-            }]
-          }]
+          contents: [
+            {
+              parts: [
+                {
+                  text:
+                    "You are a helpful study assistant. Explain clearly in simple language. " +
+                    question
+                }
+              ]
+            }
+          ]
         })
       }
     );
@@ -46,11 +54,12 @@ exports.handler = async function (event) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Gemini API error:", data);
+      console.error("Gemini error:", data);
       return {
         statusCode: 502,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: "AI could not answer right now. Check the Gemini API key and model settings."
+          message: "Gemini API error. Check the API key and supported model."
         })
       };
     }
@@ -68,10 +77,12 @@ exports.handler = async function (event) {
     };
   } catch (error) {
     console.error("AI function error:", error);
+
     return {
       statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: "Something went wrong in the AI service."
+        message: "AI service failed. Check the function logs."
       })
     };
   }
