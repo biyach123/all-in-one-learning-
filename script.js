@@ -531,26 +531,65 @@ cardSearch.addEventListener("input", function () {
         }
     };
 
-    window.handleLogin = function (event) {
-        event.preventDefault();
+  
+window.handleLogin = async function (event) {
+    event.preventDefault();
 
-        const email = document.getElementById("login-email").value.trim();
-        const password = document.getElementById("login-password").value;
-        const message = document.getElementById("login-message");
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    const message = document.getElementById("login-message");
+    const button = document.getElementById("login-submit");
 
-        if (!email || !password) {
-            message.textContent = "Please fill in all fields.";
-            return;
-        }
+    if (!email || !password) {
+        message.textContent = "Please fill in all fields.";
+        return;
+    }
 
+    const auth = window.firebaseAuth;
+    const firebase = window.firebaseFunctions;
+
+    if (!auth || !firebase) {
+        message.textContent =
+            "Firebase is not connected. Please check the Firebase setup.";
+        return;
+    }
+
+    button.disabled = true;
+    message.textContent = "Please wait...";
+
+    try {
         if (currentFormMode === "signup") {
-            message.textContent =
-                "Your form is ready! Real account creation will be enabled when secure authentication is connected.";
+            await firebase.createUserWithEmailAndPassword(
+                auth, email, password
+            );
+            message.textContent = "Account created successfully!";
         } else {
-            message.textContent =
-                "Login is not connected yet. Secure authentication is needed to sign in.";
+            await firebase.signInWithEmailAndPassword(
+                auth, email, password
+            );
+            message.textContent = "Login successful!";
         }
-    };
+
+        setTimeout(() => window.showSection("home"), 1000);
+
+    } catch (error) {
+        const errors = {
+            "auth/email-already-in-use": "This email already has an account. Please log in.",
+            "auth/invalid-email": "Please enter a valid email.",
+            "auth/weak-password": "Password must be at least 6 characters.",
+            "auth/invalid-credential": "Email or password is incorrect.",
+            "auth/network-request-failed": "Check your internet connection.",
+            "auth/operation-not-allowed": "Enable Email/Password sign-in in Firebase."
+        };
+
+        message.textContent =
+            errors[error.code] || "Login failed. Please try again.";
+
+    } finally {
+        button.disabled = false;
+    }
+};
+ 
 
 });
 
