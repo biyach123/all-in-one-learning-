@@ -551,9 +551,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ question })
             });
+                
+const responseText = await response.text();
 
-            const data = await response.json();
+console.log("AI status:", response.status);
+console.log("AI response:", responseText);
 
+let data;
+
+try {
+    data = JSON.parse(responseText);
+} catch (error) {
+    throw new Error(
+        "Server ne valid JSON nahi bheja. Status: " + response.status
+    );
+}
+            
             if (!response.ok) {
                 throw new Error(data.message || "AI request failed.");
             }
