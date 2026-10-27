@@ -534,13 +534,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             aiMessage.textContent = "AI Assistant: " +
                 (data.answer || "The server returned no answer.");
-        } catch (error) {
-            console.error("AI request error:", error);
-            aiMessage.textContent =
-                "AI Assistant: The online AI service is not set up yet. Please try again later.";
-        } finally {
-            if (button) button.disabled = false;
-            input.focus();
-        }
-    };
+       } catch (error) {
+    console.error("AI request error:", error);
+
+    aiMessage.textContent =
+        "AI Assistant: Error — " + error.message;
+} finally {
 });
