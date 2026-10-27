@@ -1,5 +1,31 @@
 
 document.addEventListener("DOMContentLoaded", function () {
+        // Connect Search form to its function
+    const searchForm = document.getElementById("search-form");
+
+    if (searchForm) {
+        searchForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            window.searchResearch();
+        });
+    }
+
+    // Connect AI form to its function
+    const aiForm = document.getElementById("ai-form");
+
+    if (aiForm) {
+        aiForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            window.askAI();
+        });
+    }
+
+    // Connect Login form to its function
+    const loginForm = document.getElementById("login-form");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", window.handleLogin);
+    }
     // NAVIGATION
     window.showSection = function (sectionId) {
         const target = document.getElementById(sectionId);
