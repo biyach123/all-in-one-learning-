@@ -534,10 +534,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             aiMessage.textContent = "AI Assistant: " +
                 (data.answer || "The server returned no answer.");
-       } catch (error) {
-    console.error("AI request error:", error);
-
-    aiMessage.textContent =
-        "AI Assistant: Error — " + error.message;
-} finally {
+        } catch (error) {
+            console.error("AI request error:", error);
+            aiMessage.textContent = "AI Assistant: Error — " + error.message;
+        } finally {
+            if (button) button.disabled = false;
+        }
+    };
 });
