@@ -1,583 +1,691 @@
 
-document.addEventListener("DOMContentLoaded", function () {
-        // Connect Search form to its function
-    const searchForm = document.getElementById("search-form");
+document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id);
 
-    if (searchForm) {
-        searchForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            window.searchResearch();
-        });
+  let currentSubject = "";
+  let currentTopic = "";
+  let currentCategory = "";
+  let loginMode = "login";
+  let firebaseStarted = false;
+
+  const intro = $("intro-screen");
+  const authScreen = $("auth-screen");
+  const appShell = $("app-shell");
+
+  function showScreen(screen) {
+    if (intro) intro.style.display = "none";
+    if (authScreen) authScreen.style.display = "none";
+    if (appShell) appShell.style.display = "none";
+
+    if (screen === "intro" && intro) intro.style.display = "flex";
+    if (screen === "auth" && authScreen) authScreen.style.display = "flex";
+    if (screen === "app" && appShell) appShell.style.display = "flex";
+  }
+
+  function setMessage(id, message, isError = false) {
+    const element = $(id);
+    if (!element) return;
+    element.textContent = message;
+    element.style.color = isError ? "#c62828" : "#18794e";
+  }
+
+  function firebaseFunctions() {
+    return window.firebaseFunctions || null;
+  }
+
+  function setLoginMode(mode) {
+    loginMode = mode;
+    const signup = mode === "signup";
+
+    const nameField = $("login-name");
+    const submit = $("login-submit");
+    document.getElementById("google-login-button")?.addEventListener("click", async () => {
+  try {
+    const fb = firebaseFunctions();
+    const provider = new fb.GoogleAuthProvider();
+    await fb.signInWithPopup(window.firebaseAuth, provider);
+  } catch (error) {
+    setMessage("login-message", error.message, true);
+  }
+});
+
+    if (nameField) {
+      nameField.style.display = signup ? "block" : "none";
+      nameField.required = signup;
     }
 
-    // Connect AI form to its function
-    const aiForm = document.getElementById("ai-form");
-
-    if (aiForm) {
-        aiForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            window.askAI();
-        });
+    if (submit) {
+      submit.textContent = signup ? "Create Account" : "Login";
     }
 
-    // Connect Login form to its function
-    const loginForm = document.getElementById("login-form");
+    const title = $("auth-title");
+    if (title) title.textContent = signup ? "Create Your Account" : "Welcome Back";
 
-    if (loginForm) {
-        loginForm.addEventListener("submit", window.handleLogin);
+    const subtitle = $("auth-subtitle");
+    if (subtitle) {
+      subtitle.textContent = signup
+        ? "Join All-in-One Learning & Smart"
+        : "Login to continue learning";
     }
-    // NAVIGATION
-    window.showSection = function (sectionId) {
-        const target = document.getElementById(sectionId);
 
-        if (!target) {
-            alert("Page not found: " + sectionId);
-            return;
+    setMessage("login-message", "");
+  }
+
+  window.showLoginForm = (mode) => {
+    setLoginMode(mode === "signup" ? "signup" : "login");
+  };
+
+  function showApp(user) {
+    showScreen("app");
+
+    const userName = user?.displayName || user?.email?.split("@")[0] || "Learner";
+    const welcome = $("welcome-user");
+    if (welcome) welcome.textContent = `Welcome, ${userName}!`;
+
+    showSection("home");
+  }
+
+  function showAuth(message = "") {
+    showScreen("auth");
+    setLoginMode(loginMode);
+    if (message) setMessage("login-message", message, true);
+  }
+
+  function watchFirebase() {
+    const fb = firebaseFunctions();
+
+    if (fb && fb.onAuthStateChanged && window.firebaseAuth) {
+      if (firebaseStarted) return;
+      firebaseStarted = true;
+
+      fb.onAuthStateChanged(window.firebaseAuth, (user) => {
+        if (user) {
+          showApp(user);
+        } else {
+          showAuth();
         }
+      });
 
-        document.querySelectorAll("main section").forEach(section => {
-            section.style.display = "none";
+      return;
+    }
+
+    // Firebase may still be loading.
+    if (window.firebaseReady === undefined) {
+      window.addEventListener("firebase-ready", watchFirebase, { once: true });
+      setTimeout(() => {
+        if (!firebaseStarted) {
+          showAuth("Firebase is still loading. Refresh the page and try again.");
+        }
+      }, 5000);
+    } else {
+      showAuth("Firebase did not load. Check your internet connection and Firebase configuration.");
+    }
+  }
+
+  // Navigation
+  window.showSection = (sectionId) => {
+    const sections = document.querySelectorAll("main section");
+
+    sections.forEach((section) => {
+      section.classList.remove("active");
+      section.style.display = "none";
+    });
+
+    const target = $(sectionId);
+    if (target) {
+      target.style.display = "block";
+      target.classList.add("active");
+    }
+
+    document.querySelectorAll("[data-section]").forEach((button) => {
+      button.classList.toggle("active", button.dataset.section === sectionId);
+    });
+
+    const sidebar = $("sidebar");
+    if (sidebar) sidebar.classList.remove("open");
+  };
+
+  // Subject selection
+  window.chooseTopic = (subject) => {
+    currentSubject = subject;
+    const input = $("topic-input");
+    if (input) input.value = "";
+
+    const message = $("topic-message");
+    if (message) {
+      message.textContent = `Selected: ${subject}. Enter a topic to find learning resources.`;
+    }
+
+    showSection("topics");
+    if (input) input.focus();
+  };
+
+  // Search resources through the Netlify function
+  async function runSearch(topic) {
+    const cleanTopic = String(topic || "").trim();
+
+    if (!cleanTopic) {
+      setMessage("smart-search-message", "Please enter a topic.", true);
+      return;
+    }
+
+    currentTopic = cleanTopic;
+    setMessage("smart-search-message", "Finding learning resources...");
+
+    const resultsBox = $("smart-search-results");
+    if (resultsBox) resultsBox.textContent = "Loading resources...";
+
+    try {
+      const response = await fetch("/.netlify/functions/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: cleanTopic })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Search could not be completed.");
+      }
+
+      const results = Array.isArray(data.results) ? data.results : [];
+      currentTopic = cleanTopic;
+
+      const title = $("results-title");
+      if (title) title.textContent = `Learning resources: ${cleanTopic}`;
+
+      const description = $("results-description");
+      if (description) {
+        description.textContent = "Choose a category below or open a resource.";
+      }
+
+      renderResources($("learning-resources"), results);
+
+      if (resultsBox) renderResources(resultsBox, results);
+
+      setMessage("smart-search-message", "Resources are ready.");
+      showSection("results-page");
+    } catch (error) {
+      const message = error.message || "Search failed. Please try again.";
+      setMessage("smart-search-message", message, true);
+      if (resultsBox) resultsBox.textContent = message;
+    }
+  }
+
+  function renderResources(container, resources) {
+    if (!container) return;
+
+    container.replaceChildren();
+
+    if (!resources.length) {
+      container.textContent = "No resources were returned. Try another topic.";
+      return;
+    }
+
+    resources.forEach((resource) => {
+      if (!resource || !resource.url || !resource.title) return;
+
+      const link = document.createElement("a");
+      link.href = resource.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = resource.title;
+      link.className = "resource-link";
+      container.appendChild(link);
+    });
+  }
+
+  const topicForm = $("topic-search-form");
+  if (topicForm) {
+    topicForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const input = $("topic-input");
+      const topic = input ? input.value.trim() : "";
+
+      if (!topic) {
+        const message = $("topic-message");
+        if (message) message.textContent = "Please enter a topic first.";
+        return;
+      }
+
+      const fullTopic = currentSubject
+        ? `${currentSubject} ${topic}`
+        : topic;
+
+      runSearch(fullTopic);
+    });
+  }
+
+  const smartForm = $("smart-search-form");
+  if (smartForm) {
+    smartForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      runSearch($("smart-topic-input")?.value || "");
+    });
+  }
+
+  const globalSearchButton = $("global-search-button");
+  if (globalSearchButton) {
+    globalSearchButton.addEventListener("click", () => {
+      runSearch($("global-search")?.value || "");
+    });
+  }
+
+  const globalSearchInput = $("global-search");
+  if (globalSearchInput) {
+    globalSearchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        runSearch(globalSearchInput.value);
+      }
+    });
+  }
+
+  // Topic category pages
+  const categorySources = {
+    "Video Lectures": [
+      ["YouTube Video Lectures", "https://www.youtube.com/results?search_query="],
+      ["Khan Academy", "https://www.khanacademy.org/search?page_search_query="],
+      ["Google Video Search", "https://www.google.com/search?tbm=vid&q="]
+    ],
+    "Research Papers": [
+      ["Google Scholar", "https://scholar.google.com/scholar?q="],
+      ["Semantic Scholar", "https://www.semanticscholar.org/search?q="],
+      ["arXiv", "https://arxiv.org/search/?query="]
+    ],
+    "Articles": [
+      ["Google Articles Search", "https://www.google.com/search?q="],
+      ["Britannica", "https://www.britannica.com/search?query="],
+      ["Wikipedia", "https://en.wikipedia.org/wiki/Special:Search?search="]
+    ],
+    "Notes & Summaries": [
+      ["OpenStax Textbooks", "https://openstax.org/search?query="],
+      ["Study Notes Search", "https://www.google.com/search?q="],
+      ["Quizlet Study Sets", "https://quizlet.com/search?query="]
+    ],
+    "Questions & MCQs": [
+      ["Practice Questions", "https://www.google.com/search?q="],
+      ["Khan Academy Practice", "https://www.khanacademy.org/search?page_search_query="],
+      ["Quizlet Questions", "https://quizlet.com/search?query="]
+    ],
+    "Tests & MCQs": [
+      ["Online Practice Tests", "https://www.google.com/search?q="],
+      ["Khan Academy", "https://www.khanacademy.org/search?page_search_query="],
+      ["Quizlet Tests", "https://quizlet.com/search?query="]
+    ],
+    "Assignments": [
+      ["Assignment Examples", "https://www.google.com/search?q="],
+      ["YouTube Tutorials", "https://www.youtube.com/results?search_query="],
+      ["OpenStax Learning", "https://openstax.org/search?query="]
+    ],
+    "Experiments & Practicals": [
+      ["PhET Simulations", "https://phet.colorado.edu/en/simulations/filter?subjects="],
+      ["Practical Videos", "https://www.youtube.com/results?search_query="],
+      ["Practical Guides", "https://www.google.com/search?q="]
+    ],
+    "History & General Knowledge": [
+      ["Britannica", "https://www.britannica.com/search?query="],
+      ["Wikipedia", "https://en.wikipedia.org/wiki/Special:Search?search="],
+      ["Documentary Videos", "https://www.youtube.com/results?search_query="]
+    ],
+    "Projects & Ideas": [
+      ["Project Ideas", "https://www.google.com/search?q="],
+      ["Project Tutorials", "https://www.youtube.com/results?search_query="],
+      ["Science Projects", "https://www.google.com/search?q="]
+    ]
+  };
+
+  window.openCategory = (category) => {
+    currentCategory = category;
+
+    const title = $("category-title");
+    if (title) title.textContent = category;
+
+    const description = $("category-description");
+    if (description) {
+      description.textContent = `Resources for ${currentTopic || "your topic"} — ${category}`;
+    }
+
+    const container = $("category-results");
+    if (container) {
+      container.replaceChildren();
+
+      const sources = categorySources[category] || [
+        ["Google Search", "https://www.google.com/search?q="],
+        ["YouTube", "https://www.youtube.com/results?search_query="]
+      ];
+
+      const query = `${currentTopic} ${category}`.trim();
+
+      sources.forEach(([name, baseUrl]) => {
+        const link = document.createElement("a");
+        link.className = "resource-link";
+        link.href = baseUrl + encodeURIComponent(query);
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = name;
+        container.appendChild(link);
+      });
+    }
+
+    showSection("category-page");
+  };
+
+  // AI assistant
+  function addChatMessage(message, sender) {
+    const chat = $("chat-messages");
+    if (!chat) return;
+
+    const bubble = document.createElement("div");
+    bubble.className = sender === "user" ? "chat-message user-message" : "chat-message ai-message";
+    bubble.textContent = message;
+    chat.appendChild(bubble);
+    chat.scrollTop = chat.scrollHeight;
+    return bubble;
+  }
+
+  const aiForm = $("ai-form");
+  if (aiForm) {
+    aiForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const input = $("ai-question");
+      const button = $("ai-send-button");
+      const question = input ? input.value.trim() : "";
+
+      if (!question) {
+        addChatMessage("Please type your question first.", "ai");
+        return;
+      }
+
+      addChatMessage(question, "user");
+      input.value = "";
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Thinking...";
+      }
+
+      const loadingBubble = addChatMessage("Preparing your answer...", "ai");
+
+      try {
+        const response = await fetch("/.netlify/functions/ask-ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question })
         });
 
-        target.style.display = "block";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
+        const data = await response.json();
 
-    window.scrollToTop = function () {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    // TOPIC SELECTION
-    window.chooseTopic = function (subject) {
-        const input = document.getElementById("topic-input");
-        const message = document.getElementById("searchmessage");
-
-        if (!input || !message) return;
-
-        input.value = "";
-        input.dataset.subject = subject;
-        input.placeholder = "Enter a topic in " + subject + "...";
-        message.textContent =
-            "Selected subject: " + subject + ". Now enter your topic.";
-
-        window.showSection("search");
-        input.focus();
-    };
-
-    // SMART SEARCH — NETLIFY FUNCTION
-    window.searchResearch = async function () {
-        const input = document.getElementById("topic-input");
-        const message = document.getElementById("searchmessage");
-        const resultsTopic = document.getElementById("results-topic");
-
-        if (!input || !message || !resultsTopic) return;
-
-        const topic = input.value.trim();
-        const subject = input.dataset.subject || "";
-
-        if (!topic) {
-            message.textContent = "Please enter a topic first.";
-            input.focus();
-            return;
+        if (!response.ok) {
+          throw new Error(data.message || "The AI service is unavailable.");
         }
 
-        const fullTopic = (subject ? subject + " " : "") + topic;
-
-        message.textContent = "Searching for resources...";
-        resultsTopic.textContent = "Resources for: " + fullTopic;
-
-        try {
-            const response = await fetch("/.netlify/functions/search", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ topic: fullTopic })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Search request failed.");
-            }
-
-            const oldResults = document.getElementById("learning-resources");
-            if (oldResults) oldResults.remove();
-
-            const container = document.createElement("div");
-            container.id = "learning-resources";
-
-            const heading = document.createElement("h3");
-            heading.textContent = "Quick Learning Resources";
-            container.appendChild(heading);
-
-            // Supports the results format in the Netlify search function.
-            const resources = data.results || data.resources || [];
-
-            if (resources.length === 0) {
-                const note = document.createElement("p");
-                note.textContent = "No resources returned. Try another topic.";
-                container.appendChild(note);
-            }
-
-            resources.forEach(resource => {
-                const card = document.createElement("div");
-                const title = document.createElement("h3");
-                const link = document.createElement("a");
-
-                title.textContent = resource.title || "Learning Resource";
-                link.textContent = "Open resource";
-                link.href = resource.url;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-
-                card.append(title, link);
-
-                if (resource.description) {
-                    const description = document.createElement("p");
-                    description.textContent = resource.description;
-                    card.appendChild(description);
-                }
-
-                container.appendChild(card);
-            });
-
-            document.getElementById("results-page").appendChild(container);
-
-            message.textContent = "Search completed!";
-            window.showSection("results-page");
-        } catch (error) {
-            console.error("Search error:", error);
-            message.textContent =
-                "Search service could not connect. Please try again after deployment.";
+        if (loadingBubble) {
+          loadingBubble.textContent = data.answer || "No answer was returned. Please try again.";
         }
+      } catch (error) {
+        if (loadingBubble) {
+          loadingBubble.textContent =
+            `${error.message || "Could not connect to the AI."} Check that the website is deployed on Netlify and its AI function is working.`;
+        }
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = "Send";
+        }
+        if (input) input.focus();
+      }
+    });
+  }
+
+  // Calculator
+  window.showCalculatorMode = (mode) => {
+    const modes = {
+      basic: "basic-calculator",
+      scientific: "scientific-calculator",
+      percentage: "percentage-calculator",
+      power: "power-calculator"
     };
 
-    // LEARNING CATEGORY RESOURCES
-    window.openCategory = function (category) {
-        const input = document.getElementById("topic-input");
-        const topic = input ? input.value.trim() : "";
-        const subject = input?.dataset.subject || "";
+    Object.entries(modes).forEach(([key, id]) => {
+      const panel = $(id);
+      if (panel) panel.style.display = key === mode ? "block" : "none";
+    });
 
-        if (!topic) {
-            const message = document.getElementById("searchmessage");
-            if (message) message.textContent = "Please enter a topic first.";
-            window.showSection("search");
-            return;
+    const result = $("calculator-result");
+    if (result) result.textContent = "Result will appear here.";
+  };
+
+  const calculatorMode = $("calculator-mode");
+  if (calculatorMode) {
+    calculatorMode.addEventListener("change", () => {
+      window.showCalculatorMode(calculatorMode.value);
+    });
+    window.showCalculatorMode(calculatorMode.value || "basic");
+  }
+
+  function showResult(value) {
+    const output = $("calculator-result");
+    if (!output) return;
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      output.textContent = `Result: ${Number(value.toFixed(10))}`;
+    } else {
+      output.textContent = String(value);
+    }
+  }
+
+  function getNumber(id) {
+    const element = $(id);
+    if (!element || element.value.trim() === "") return null;
+
+    const value = Number(element.value);
+    return Number.isFinite(value) ? value : null;
+  }
+
+  const basicButton = $("basic-calculate");
+  if (basicButton) {
+    basicButton.addEventListener("click", () => {
+      const a = getNumber("basic-num1");
+      const b = getNumber("basic-num2");
+      const operation = $("basic-operation")?.value;
+
+      if (a === null || b === null) {
+        showResult("Enter two valid numbers.");
+        return;
+      }
+
+      const operations = {
+        add: () => a + b,
+        subtract: () => a - b,
+        multiply: () => a * b,
+        divide: () => b === 0 ? "Cannot divide by zero." : a / b
+      };
+
+      showResult(operations[operation] ? operations[operation]() : "Choose an operation.");
+    });
+  }
+
+  const scientificButton = $("scientific-calculate");
+  if (scientificButton) {
+    scientificButton.addEventListener("click", () => {
+      const value = getNumber("scientific-number");
+      const operation = $("scientific-operation")?.value;
+
+      if (value === null) {
+        showResult("Enter a valid number.");
+        return;
+      }
+
+      const radians = value * Math.PI / 180;
+      const operations = {
+        square: () => value ** 2,
+        squareRoot: () => value < 0 ? "Square root needs a non-negative number." : Math.sqrt(value),
+        sin: () => Math.sin(radians),
+        cos: () => Math.cos(radians),
+        tan: () => Math.abs(Math.cos(radians)) < 1e-10 ? "Undefined for this angle." : Math.tan(radians),
+        log: () => value <= 0 ? "Log needs a number greater than zero." : Math.log10(value),
+        ln: () => value <= 0 ? "Natural log needs a number greater than zero." : Math.log(value),
+        absolute: () => Math.abs(value)
+      };
+
+      showResult(operations[operation] ? operations[operation]() : "Choose an operation.");
+    });
+  }
+
+  const percentageButton = $("percentage-calculate");
+  if (percentageButton) {
+    percentageButton.addEventListener("click", () => {
+      const percentage = getNumber("percentage-value");
+      const total = getNumber("percentage-total");
+
+      if (percentage === null || total === null) {
+        showResult("Enter a valid percentage and total.");
+        return;
+      }
+
+      showResult((percentage / 100) * total);
+    });
+  }
+
+  const powerButton = $("power-calculate");
+  if (powerButton) {
+    powerButton.addEventListener("click", () => {
+      const base = getNumber("power-base");
+      const exponent = getNumber("power-exponent");
+
+      if (base === null || exponent === null) {
+        showResult("Enter a valid base and exponent.");
+        return;
+      }
+
+      showResult(base ** exponent);
+    });
+  }
+
+  // Login and sign-up
+  const loginForm = $("login-form");
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const fb = firebaseFunctions();
+      if (!fb || !window.firebaseAuth) {
+        setMessage("login-message", "Firebase is not ready. Refresh the page and try again.", true);
+        return;
+      }
+
+      const email = $("login-email")?.value.trim();
+      const password = $("login-password")?.value;
+      const name = $("login-name")?.value.trim();
+
+      if (!email || !password) {
+        setMessage("login-message", "Enter your email and password.", true);
+        return;
+      }
+
+      const submit = $("login-submit");
+      if (submit) {
+        submit.disabled = true;
+        submit.textContent = "Please wait...";
+      }
+
+      try {
+        if (loginMode === "signup") {
+          if (!name) throw new Error("Enter your name to create an account.");
+
+          const result = await fb.createUserWithEmailAndPassword(
+            window.firebaseAuth,
+            email,
+            password
+          );
+
+          await fb.updateProfile(result.user, { displayName: name });
+          setMessage("login-message", "Account created successfully.");
+        } else {
+          await fb.signInWithEmailAndPassword(
+            window.firebaseAuth,
+            email,
+            password
+          );
         }
-
-        const fullTopic = (subject ? subject + " " : "") + topic;
-        const q = encodeURIComponent(fullTopic);
-        const google = "https://www.google.com/search?q=";
-        const youtube = "https://www.youtube.com/results?search_query=";
-
-        const resources = {
-            "Video Lectures": [
-                ["YouTube Lectures", youtube + encodeURIComponent(fullTopic + " lecture")],
-                ["Khan Academy", google + encodeURIComponent("site:khanacademy.org " + fullTopic)],
-                ["MIT OpenCourseWare", google + encodeURIComponent("site:ocw.mit.edu " + fullTopic)],
-                ["Educational Videos", "https://www.google.com/search?tbm=vid&q=" + q]
-            ],
-            "Articles": [
-                ["Google Articles", google + q + "+article"],
-                ["Britannica", google + encodeURIComponent("site:britannica.com " + fullTopic)],
-                ["Wikipedia", "https://en.wikipedia.org/w/index.php?search=" + q],
-                ["Educational Websites", google + encodeURIComponent(fullTopic + " explanation")]
-            ],
-            "Research Papers": [
-                ["Google Scholar", "https://scholar.google.com/scholar?q=" + q],
-                ["Semantic Scholar", "https://www.semanticscholar.org/search?q=" + q],
-                ["CORE Research", google + encodeURIComponent("site:core.ac.uk " + fullTopic)],
-                ["arXiv Papers", google + encodeURIComponent("site:arxiv.org " + fullTopic)]
-            ],
-            "Notes & Summaries": [
-                ["Study Notes", google + encodeURIComponent(fullTopic + " study notes")],
-                ["Khan Academy", google + encodeURIComponent("site:khanacademy.org " + fullTopic)],
-                ["OpenStax Textbooks", google + encodeURIComponent("site:openstax.org " + fullTopic)],
-                ["Chapter Summaries", google + encodeURIComponent(fullTopic + " summary")]
-            ],
-            "Questions & MCQs": [
-                ["Practice Questions", google + encodeURIComponent(fullTopic + " practice questions")],
-                ["MCQs with Answers", google + encodeURIComponent(fullTopic + " MCQs with answers")],
-                ["Quizlet", google + encodeURIComponent("site:quizlet.com " + fullTopic)],
-                ["Past Papers", google + encodeURIComponent(fullTopic + " past paper questions")]
-            ],
-            "Assignments": [
-                ["Assignment Examples", google + encodeURIComponent(fullTopic + " assignment examples")],
-                ["Worksheets", google + encodeURIComponent(fullTopic + " worksheets")],
-                ["Project Ideas", google + encodeURIComponent(fullTopic + " project ideas")],
-                ["Assignment Guides", google + encodeURIComponent(fullTopic + " assignment guide")]
-            ],
-            "Experiments & Practicals": [
-                ["Practical Guides", google + encodeURIComponent(fullTopic + " practical guide")],
-                ["Science Experiments", google + encodeURIComponent(fullTopic + " science experiment")],
-                ["PhET Simulations", google + encodeURIComponent("site:phet.colorado.edu " + fullTopic)],
-                ["Practical Videos", youtube + encodeURIComponent(fullTopic + " practical experiment")]
-            ]
+      } catch (error) {
+        const messages = {
+          "auth/email-already-in-use": "This email already has an account. Try logging in.",
+          "auth/invalid-email": "Enter a valid email address.",
+          "auth/weak-password": "Use a stronger password with at least 6 characters.",
+          "auth/invalid-credential": "Email or password is incorrect.",
+          "auth/invalid-api-key": "Firebase API key is invalid. Check the Firebase configuration in index.html.",
+          "auth/network-request-failed": "Network error. Check your internet connection."
         };
 
-        const old = document.getElementById("category-results");
-        if (old) old.remove();
+        setMessage(
+          "login-message",
+          messages[error.code] || error.message || "Authentication failed.",
+          true
+        );
+      } finally {
+        if (submit) {
+          submit.disabled = false;
+          submit.textContent = loginMode === "signup" ? "Create Account" : "Login";
+        }
+      }
+    });
+  }
 
-        const section = document.createElement("section");
-        section.id = "category-results";
-        section.className = "section";
+  const forgotButton = $("forgot-password");
+  if (forgotButton) {
+    forgotButton.addEventListener("click", async () => {
+      const fb = firebaseFunctions();
+      const email = $("login-email")?.value.trim();
 
-        const heading = document.createElement("h2");
-        heading.textContent = category;
+      if (!email) {
+        setMessage("login-message", "Enter your email first, then click Forgot Password.", true);
+        return;
+      }
 
-        const description = document.createElement("p");
-        description.textContent =
-            "Subject: " + (subject || "General") + " | Topic: " + topic;
+      if (!fb || !window.firebaseAuth) {
+        setMessage("login-message", "Firebase is not ready. Try again shortly.", true);
+        return;
+      }
 
-        section.append(heading, description);
+      try {
+        await fb.sendPasswordResetEmail(window.firebaseAuth, email);
+        setMessage("login-message", "Password reset email sent. Check your inbox.");
+      } catch (error) {
+        setMessage("login-message", error.message || "Could not send the reset email.", true);
+      }
+    });
+  }
 
-        const searchBox = document.createElement("input");
-        searchBox.type = "search";
-        searchBox.placeholder = "Filter these resources...";
-        searchBox.setAttribute("aria-label", "Filter resources");
-        searchBox.style.cssText =
-            "width:100%;max-width:500px;padding:12px;margin:15px 0;box-sizing:border-box;";
+  window.logoutUser = async () => {
+    const fb = firebaseFunctions();
 
-        section.appendChild(searchBox);
-
-        const list = document.createElement("div");
-        list.style.cssText =
-            "display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;margin:20px 0;";
-
-        const items = resources[category] || [
-            ["Search this topic", google + q + "+" + encodeURIComponent(category)]
-        ];
-
-        items.forEach(item => {
-            const card = document.createElement("div");
-            card.style.cssText =
-                "padding:16px;border:1px solid #d7e4f5;border-radius:12px;background:white;";
-
-            const title = document.createElement("h3");
-            title.textContent = item[0];
-
-            const link = document.createElement("a");
-            link.href = item[1];
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            link.textContent = "Explore resource";
-
-            card.append(title, link);
-            list.appendChild(card);
-        });
-
-        searchBox.addEventListener("input", function () {
-            const filter = searchBox.value.toLowerCase().trim();
-
-            Array.from(list.children).forEach(card => {
-                card.style.display =
-                    card.textContent.toLowerCase().includes(filter) ? "" : "none";
-            });
-        });
-
-        const back = document.createElement("button");
-        back.type = "button";
-        back.textContent = "Back to Search Results";
-        back.addEventListener("click", function () {
-            window.showSection("results-page");
-        });
-
-        section.append(list, back);
-        document.querySelector("main").appendChild(section);
-        window.showSection("category-results");
-    };
-
-    // CALCULATOR MODE
-    const mode = document.getElementById("calculator-mode");
-
-    function updateCalculatorMode() {
-        if (!mode) return;
-
-        ["basic", "scientific", "percentage", "power"].forEach(name => {
-            const panel = document.getElementById(name + "-calculator");
-            if (panel) {
-                panel.style.display = mode.value === name ? "block" : "none";
-            }
-        });
+    if (!fb || !window.firebaseAuth) {
+      showAuth();
+      return;
     }
 
-    if (mode) {
-        mode.addEventListener("change", updateCalculatorMode);
-        updateCalculatorMode();
+    try {
+      await fb.signOut(window.firebaseAuth);
+      showAuth();
+    } catch (error) {
+      alert("Logout failed. Please try again.");
     }
+  };
 
-    function getNumber(id) {
-        const input = document.getElementById(id);
+  // Mobile sidebar toggle, if its button exists
+  const menuButton = $("menu-toggle");
+  if (menuButton) {
+    menuButton.addEventListener("click", () => {
+      const sidebar = $("sidebar");
+      if (sidebar) sidebar.classList.toggle("open");
+    });
+  }
 
-        if (!input || input.value.trim() === "") {
-            throw new Error("Please enter all required numbers.");
-        }
-
-        const number = Number(input.value);
-
-        if (!Number.isFinite(number)) {
-            throw new Error("Please enter valid numbers.");
-        }
-
-        return number;
-    }
-
-    function showResult(value) {
-        const output = document.getElementById("calculator-result");
-        if (output) {
-            output.textContent = "Result: " +
-                (Number.isFinite(value) ? Number(value.toPrecision(10)) : value);
-        }
-    }
-
-    function showError(error) {
-        const output = document.getElementById("calculator-result");
-        if (output) output.textContent = error;
-    }
-
-    window.calculateBasic = function () {
-        try {
-            const a = getNumber("number1");
-            const b = getNumber("number2");
-            const operation = document.getElementById("operation").value;
-            let result;
-
-            switch (operation) {
-                case "add": result = a + b; break;
-                case "subtract": result = a - b; break;
-                case "multiply": result = a * b; break;
-                case "divide":
-                    if (b === 0) throw new Error("Cannot divide by zero.");
-                    result = a / b;
-                    break;
-                case "modulo":
-                    if (b === 0) throw new Error("Cannot find remainder with zero.");
-                    result = a % b;
-                    break;
-                default: throw new Error("Choose an operation.");
-            }
-
-            showResult(result);
-        } catch (error) {
-            showError(error.message);
-        }
-    };
-
-    window.calculateScientific = function () {
-        try {
-            const x = getNumber("scientific-number");
-            const operation = document.getElementById("scientific-operation").value;
-            let result;
-
-            switch (operation) {
-                case "sqrt":
-                    if (x < 0) throw new Error("Square root needs a non-negative number.");
-                    result = Math.sqrt(x);
-                    break;
-                case "square": result = x * x; break;
-                case "sin": result = Math.sin(x * Math.PI / 180); break;
-                case "cos": result = Math.cos(x * Math.PI / 180); break;
-                case "tan":
-                    if (Math.abs(Math.cos(x * Math.PI / 180)) < 1e-10) {
-                        throw new Error("Tangent is undefined for this angle.");
-                    }
-                    result = Math.tan(x * Math.PI / 180);
-                    break;
-                case "log":
-                    if (x <= 0) throw new Error("Log needs a number greater than zero.");
-                    result = Math.log10(x);
-                    break;
-                case "ln":
-                    if (x <= 0) throw new Error("Natural log needs a number greater than zero.");
-                    result = Math.log(x);
-                    break;
-                case "factorial":
-                    if (x < 0 || !Number.isInteger(x) || x > 170) {
-                        throw new Error("Factorial needs a whole number from 0 to 170.");
-                    }
-                    result = 1;
-                    for (let i = 2; i <= x; i++) result *= i;
-                    break;
-                default: throw new Error("Choose an operation.");
-            }
-
-            showResult(result);
-        } catch (error) {
-            showError(error.message);
-        }
-    };
-
-    window.calculatePercentage = function () {
-        try {
-            showResult(getNumber("percentage-value") * getNumber("percentage-rate") / 100);
-        } catch (error) {
-            showError(error.message);
-        }
-    };
-
-    window.calculatePower = function () {
-        try {
-            const base = getNumber("power-number");
-            const degree = getNumber("power-exponent");
-            const operation = document.getElementById("power-operation").value;
-            let result;
-
-            if (operation === "power") {
-                result = Math.pow(base, degree);
-            } else {
-                if (degree <= 0 || !Number.isInteger(degree)) {
-                    throw new Error("Root degree must be a positive whole number.");
-                }
-                if (base < 0 && degree % 2 === 0) {
-                    throw new Error("An even root of a negative number is not real.");
-                }
-                result = base < 0
-                    ? -Math.pow(-base, 1 / degree)
-                    : Math.pow(base, 1 / degree);
-            }
-
-            if (!Number.isFinite(result)) throw new Error("Calculation is outside the supported range.");
-            showResult(result);
-        } catch (error) {
-            showError(error.message);
-        }
-    };
-
-    // LOGIN AND SIGN UP — FIREBASE
-    let currentFormMode = "login";
-
-    window.showLoginForm = function (formMode) {
-        currentFormMode = formMode;
-
-        const heading = document.getElementById("form-heading");
-        const button = document.getElementById("login-submit");
-        const password = document.getElementById("login-password");
-        const message = document.getElementById("login-message");
-
-        if (!heading || !button || !password || !message) return;
-
-        message.textContent = "";
-
-        if (formMode === "signup") {
-            heading.textContent = "Create Your Account";
-            button.textContent = "Create Account";
-            password.autocomplete = "new-password";
-        } else {
-            heading.textContent = "Login to Your Account";
-            button.textContent = "Login";
-            password.autocomplete = "current-password";
-        }
-    };
-
-    window.handleLogin = async function (event) {
-        event.preventDefault();
-
-        const email = document.getElementById("login-email").value.trim();
-        const password = document.getElementById("login-password").value;
-        const message = document.getElementById("login-message");
-        const button = document.getElementById("login-submit");
-
-        if (!email || !password) {
-            message.textContent = "Please fill in all fields.";
-            return;
-        }
-
-        const auth = window.firebaseAuth;
-        const firebase = window.firebaseFunctions;
-
-        if (!auth || !firebase) {
-            message.textContent =
-                "Firebase is not ready. Check your Firebase setup and refresh.";
-            return;
-        }
-
-        button.disabled = true;
-        message.textContent = "Please wait...";
-
-        try {
-            if (currentFormMode === "signup") {
-                await firebase.createUserWithEmailAndPassword(auth, email, password);
-                message.textContent = "Account created successfully!";
-            } else {
-                await firebase.signInWithEmailAndPassword(auth, email, password);
-                message.textContent = "Login successful!";
-            }
-
-            setTimeout(() => window.showSection("home"), 1000);
-        } catch (error) {
-            const messages = {
-                "auth/email-already-in-use": "This email already has an account. Please log in.",
-                "auth/invalid-email": "Please enter a valid email.",
-                "auth/weak-password": "Choose a stronger password.",
-                "auth/invalid-credential": "Email or password is incorrect.",
-                "auth/network-request-failed": "Check your internet connection.",
-                "auth/operation-not-allowed": "Enable Email/Password in Firebase Authentication."
-            };
-
-            message.textContent = messages[error.code] || "Authentication failed. Please try again.";
-            console.error("Firebase authentication error:", error);
-        } finally {
-            button.disabled = false;
-        }
-    };
-
-    // AI ASSISTANT — NETLIFY FUNCTION
-    window.askAI = async function () {
-        const input = document.getElementById("ai-question");
-        const messages = document.getElementById("chat-messages");
-        const button = document.getElementById("ai-send-button");
-
-        if (!input || !messages) return;
-
-        const question = input.value.trim();
-
-        if (!question) {
-            alert("Please enter a question!");
-            return;
-        }
-
-        const userMessage = document.createElement("p");
-        userMessage.textContent = "You: " + question;
-
-        const aiMessage = document.createElement("p");
-        aiMessage.textContent = "AI Assistant: Thinking...";
-
-        messages.append(userMessage, aiMessage);
-        input.value = "";
-        if (button) button.disabled = true;
-
-        try {
-            const response = await fetch("/.netlify/functions/ask-ai", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question })
-            });
-                
-const responseText = await response.text();
-
-console.log("AI status:", response.status);
-console.log("AI response:", responseText);
-
-let data;
-
-try {
-    data = JSON.parse(responseText);
-} catch (error) {
-    throw new Error(
-        "Server ne valid JSON nahi bheja. Status: " + response.status
-    );
-}
-            
-            if (!response.ok) {
-                throw new Error(data.message || "AI request failed.");
-            }
-
-            aiMessage.textContent = "AI Assistant: " +
-                (data.answer || "The server returned no answer.");
-        } catch (error) {
-            console.error("AI request error:", error);
-            aiMessage.textContent = "AI Assistant: Error — " + error.message;
-        } finally {
-            if (button) button.disabled = false;
-        }
-    };
+  // Temporary preview: open the website without login.
+showScreen("app");
+showSection("home");
 });

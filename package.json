@@ -1,0 +1,11 @@
+
+{
+  "name": "all-in-one-learning-smart",
+  "version": "1.0.0",
+  "private": true,
+  "description": "All-in-One Learning and Smart Tools Platform",
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "dotenv": "^16.4.7"
+  }
+}

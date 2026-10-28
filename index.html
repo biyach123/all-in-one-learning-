@@ -2,311 +2,488 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>All-in-One Learning & Smart</title>
-
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#155eef">
+  <meta name="description" content="All-in-One Learning & Smart — learning, research and smart tools in one place.">
+  <title>All-in-One Learning & Smart</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <!-- HEADER -->
-    <header id="top">
-        <h1>All-in-One Learning & Smart</h1>
-        <p>Your Learning, Research and Smart Tools Platform</p>
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen" class="intro-screen">
+    <div class="intro-logo">A<span>+</span></div>
+    <h1>All-in-One Learning</h1>
+    <p>Learn smarter. Discover more.</p>
+    <div class="loading-track"><div class="loading-progress"></div></div>
+  </div>
 
-        <!-- NAVIGATION -->
-        <nav>
-            <button onclick="showSection('home')">Home</button>
-            <button onclick="showSection('search')">Smart Search</button>
-            <button onclick="showSection('calculator')">Calculator</button>
-            <button onclick="showSection('resources')">Resources</button>
-           
-        </nav>
-    </header>
 
-    <main>
+  <!-- MAIN APPLICATION -->
+  <div id="app-shell" class="app-shell" style="display:none">
 
-        <!-- HOME SECTION -->
-        <section id="home" class="section">
-            <h2>Welcome to All-in-One Learning & Smart</h2>
+    <!-- MOBILE OVERLAY -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-            <p>
-                Learn new skills, explore useful resources
-                and discover smart tools in one place.
-            </p>
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">A<span>+</span></div>
+        <div>
+          <strong>All-in-One</strong>
+          <small>Learning & Smart</small>
+        </div>
+        <button id="close-sidebar" class="icon-button"
+          type="button" aria-label="Close menu">×</button>
+      </div>
 
-            <button onclick="showSection('topics')">
-                Explore Topics
+      <p class="sidebar-label">WORKSPACE</p>
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-section="home"
+          onclick="showSection('home')">⌂ <span>Home</span></button>
+        <button class="nav-item" data-section="topics"
+          onclick="showSection('topics')">▦ <span>Subjects</span></button>
+        <button class="nav-item" data-section="search"
+          onclick="showSection('search')">⌕ <span>Smart Search</span></button>
+        <button class="nav-item" data-section="ai-assistant-page"
+          onclick="showSection('ai-assistant-page')">✧ <span>AI Assistant</span></button>
+        <button class="nav-item" data-section="calculator"
+          onclick="showSection('calculator')">＋ <span>Calculator</span></button>
+        <button class="nav-item" data-section="resources"
+          onclick="showSection('resources')">▤ <span>Resources</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="user-mini">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div class="user-details">
+            <strong id="user-display-name">Learner</strong>
+            <small id="user-display-email">Your account</small>
+          </div>
+        </div>
+        <button id="logout-button" class="logout-button" type="button">
+          Log out
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-area">
+      <header class="topbar">
+        <button id="menu-toggle" class="icon-button"
+          type="button" aria-label="Open menu">☰</button>
+
+        <div class="topbar-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="global-search" type="search"
+            placeholder="Search any subject or topic..."
+            aria-label="Search any subject or topic">
+          <button id="global-search-button" type="button">Search</button>
+        </div>
+
+        <button class="profile-button" type="button"
+          onclick="showSection('home')" title="Go to home">Home</button>
+      </header>
+
+      <main class="page-content">
+
+        <!-- HOME -->
+        <section id="home" class="section active">
+          <div class="welcome-banner">
+            <div>
+              <span class="eyebrow">YOUR SMART LEARNING SPACE</span>
+              <h1>Learn anything.<br><span>Explore everything.</span></h1>
+              <p>Study, research, practise and discover useful tools
+                — all in one place.</p>
+              <button class="primary-button" type="button"
+                onclick="showSection('topics')">Explore Subjects →</button>
+            </div>
+            <div class="welcome-art" aria-hidden="true">
+              <div class="art-circle">A<span>+</span></div>
+              <div class="art-caption">LEARN • CREATE • GROW</div>
+            </div>
+          </div>
+
+          <div class="section-heading">
+            <div>
+              <h2>Explore your workspace</h2>
+              <p>Choose where you want to start.</p>
+            </div>
+          </div>
+
+          <div class="feature-grid">
+            <button class="feature-card" type="button"
+              onclick="showSection('topics')">
+              <span class="feature-icon blue">▦</span>
+              <strong>Study Subjects</strong>
+              <span>Explore subjects and topics.</span>
+              <span class="card-link">Explore →</span>
             </button>
+            <button class="feature-card" type="button"
+              onclick="showSection('search')">
+              <span class="feature-icon purple">⌕</span>
+              <strong>Smart Search</strong>
+              <span>Find notes, videos and research.</span>
+              <span class="card-link">Search →</span>
+            </button>
+            <button class="feature-card" type="button"
+              onclick="showSection('ai-assistant-page')">
+              <span class="feature-icon green">✧</span>
+              <strong>AI Assistant</strong>
+              <span>Ask questions and learn concepts.</span>
+              <span class="card-link">Ask AI →</span>
+            </button>
+            <button class="feature-card" type="button"
+              onclick="showSection('calculator')">
+              <span class="feature-icon orange">＋</span>
+              <strong>Smart Calculator</strong>
+              <span>Calculate and solve problems.</span>
+              <span class="card-link">Calculate →</span>
+            </button>
+          </div>
+
+          <div class="section-heading">
+            <div>
+              <h2>Popular subjects</h2>
+              <p>Start exploring a subject.</p>
+            </div>
+            <button class="text-button" type="button"
+              onclick="showSection('topics')">View all →</button>
+          </div>
+          <div id="home-subjects" class="subject-grid">
+            <button class="subject-card" onclick="chooseTopic('Mathematics')"
+              type="button"><span>∑</span><strong>Mathematics</strong></button>
+            <button class="subject-card" onclick="chooseTopic('Science')"
+              type="button"><span>⚛</span><strong>Science</strong></button>
+            <button class="subject-card" onclick="chooseTopic('Computer Science')"
+              type="button"><span>⌘</span><strong>Computer Science</strong></button>
+            <button class="subject-card" onclick="chooseTopic('Language')"
+              type="button"><span>文</span><strong>Language</strong></button>
+          </div>
         </section>
 
-        <!-- EXPLORE TOPICS -->
-        <section id="topics" class="section">
-            <h2>Explore Your Interests</h2>
+        <!-- SUBJECTS -->
+        <section id="topics" class="section" style="display:none">
+          <div class="page-heading">
+            <span class="eyebrow">DISCOVER & LEARN</span>
+            <h1>Explore Subjects</h1>
+            <p>Choose a subject, then enter the topic you want to study.</p>
+          </div>
 
-            <div class="grid">
-                <button onclick="chooseTopic('Mathematics')">
-                    Mathematics
-                </button>
+          <div class="subject-grid">
+            <button class="subject-card" onclick="chooseTopic('Mathematics')"
+              type="button"><span>∑</span><strong>Mathematics</strong><small>Numbers, algebra and geometry</small></button>
+            <button class="subject-card" onclick="chooseTopic('Science')"
+              type="button"><span>⚛</span><strong>Science</strong><small>Physics, chemistry and biology</small></button>
+            <button class="subject-card" onclick="chooseTopic('Computer Science')"
+              type="button"><span>⌘</span><strong>Computer Science</strong><small>Programming and computing</small></button>
+            <button class="subject-card" onclick="chooseTopic('History')"
+              type="button"><span>◷</span><strong>History</strong><small>People, places and events</small></button>
+            <button class="subject-card" onclick="chooseTopic('Language')"
+              type="button"><span>文</span><strong>Language</strong><small>Grammar, writing and literature</small></button>
+            <button class="subject-card" onclick="chooseTopic('Business and Economics')"
+              type="button"><span>▤</span><strong>Business & Economics</strong><small>Markets and management</small></button>
+            <button class="subject-card" onclick="chooseTopic('Technology')"
+              type="button"><span>⚙</span><strong>Technology</strong><small>Digital tools and innovation</small></button>
+            <button class="subject-card" onclick="chooseTopic('Art and Design')"
+              type="button"><span>✎</span><strong>Art & Design</strong><small>Creativity and design</small></button>
+          </div>
 
-                <button onclick="chooseTopic('Science')">
-                    Science
-                </button>
-
-                <button onclick="chooseTopic('Computer Science')">
-                    Computer Science
-                </button>
-
-                <button onclick="chooseTopic('History')">
-                    History
-                </button>
-
-                <button onclick="chooseTopic('Language')">
-                    Language
-                </button>
-
-                <button onclick="chooseTopic('Business and Economics')">
-                    Business and Economics
-                </button>
-
-                <button onclick="chooseTopic('Technology')">
-                    Technology
-                </button>
-
-                <button onclick="chooseTopic('Art and Design')">
-                    Art and Design
-                </button>
-            </div>
+          <div class="panel topic-entry">
+            <h2>Have a specific topic?</h2>
+            <p>Choose a subject above or type any topic below.</p>
+            <form id="topic-search-form" class="search-form">
+              <input id="topic-input" type="text"
+                placeholder="e.g. Quadratic equations, photosynthesis..."
+                required>
+              <button class="primary-button" type="submit">Find Resources</button>
+            </form>
+            <p id="searchmessage" class="status-message"
+              role="status" aria-live="polite"></p>
+          </div>
         </section>
 
         <!-- SMART SEARCH -->
-        
-<section id="search" class="section">
-
-    <h2>Smart Learning Search</h2>
-
-    <p>Search any topic to explore learning resources.</p>
-
-    <input
-        type="search"
-        id="topic-input"
-        placeholder="Search a topic, e.g. Artificial Intelligence"
-    >
-
-    <button type="button" onclick="searchResearch()">
-        Search
-    </button>
-
-    <p id="searchmessage" aria-live="polite"></p>
-
-    
-</section>
-
-
-        <!-- CALCULATOR -->
-        
-<!-- SMART CALCULATOR -->
-<section id="calculator" class="section">
-
-    <h2>Smart Calculator</h2>
-    <p>Choose a calculator mode and perform your calculations.</p>
-
-    <label for="calculator-mode">Calculator Mode:</label>
-
-    <select id="calculator-mode">
-        <option value="basic">Basic Calculator</option>
-        <option value="scientific">Scientific Calculator</option>
-        <option value="percentage">Percentage Calculator</option>
-        <option value="power">Powers and Roots</option>
-    </select>
-
-    <div id="basic-calculator">
-        <input type="number" id="number1" placeholder="First number">
-        
-        <select id="operation">
-            <option value="add">Addition (+)</option>
-            <option value="subtract">Subtraction (-)</option>
-            <option value="multiply">Multiplication (×)</option>
-            <option value="divide">Division (÷)</option>
-            <option value="modulo">Remainder (%)</option>
-        </select>
-
-        <input type="number" id="number2" placeholder="Second number">
-
-        <button onclick="calculateBasic()">Calculate</button>
-    </div>
-
-    <div id="scientific-calculator">
-        <input type="number" id="scientific-number" placeholder="Enter a number">
-
-        <select id="scientific-operation">
-            <option value="sqrt">Square Root (√x)</option>
-            <option value="square">Square (x²)</option>
-            <option value="sin">Sine (sin)</option>
-            <option value="cos">Cosine (cos)</option>
-            <option value="tan">Tangent (tan)</option>
-            <option value="log">Logarithm (log₁₀)</option>
-            <option value="ln">Natural Log (ln)</option>
-            <option value="factorial">Factorial (x!)</option>
-        </select>
-
-        <button onclick="calculateScientific()">Calculate</button>
-    </div>
-
-    <div id="percentage-calculator">
-        <input type="number" id="percentage-value" placeholder="Enter total value">
-        <input type="number" id="percentage-rate" placeholder="Enter percentage">
-        <button onclick="calculatePercentage()">Calculate Percentage</button>
-    </div>
-
-    <div id="power-calculator">
-        <input type="number" id="power-number" placeholder="Enter base number">
-        <input type="number" id="power-exponent" placeholder="Enter power or root degree">
-
-        <select id="power-operation">
-            <option value="power">Calculate Power</option>
-            <option value="root">Calculate Root</option>
-        </select>
-
-        <button onclick="calculatePower()">Calculate</button>
-    </div>
-
-    <p id="calculator-result" aria-live="polite">Your result will appear here.</p>
-
-</section>
-
-        <!-- RESOURCES -->
-        <section id="resources" class="section">
-            <h2>Learning Resources</h2>
-
-            <p>Explore useful educational materials.</p>
-
-            <ul>
-                <li>Study Notes</li>
-                <li>Educational Videos</li>
-                <li>Practice Questions</li>
-                <li>Computer Science Resources</li>
-                <li>Useful Learning Tools</li>
-            </ul>
+        <section id="search" class="section" style="display:none">
+          <div class="page-heading">
+            <span class="eyebrow">SEARCH & DISCOVER</span>
+            <h1>Smart Search</h1>
+            <p>Enter a topic to find useful learning resources.</p>
+          </div>
+          <div class="panel">
+            <form id="smart-search-form" class="search-form">
+              <input id="smart-topic-input" type="text"
+                placeholder="What do you want to learn?"
+                required>
+              <button class="primary-button" type="submit">Search</button>
+            </form>
+            <p id="smart-search-message" class="status-message"
+              role="status" aria-live="polite"></p>
+          </div>
+          <div id="smart-search-results" class="results-grid"></div>
         </section>
 
-    
-<!-- SEARCH RESULTS PAGE -->
-<section id="results-page" class="section">
+        <!-- RESULTS / CATEGORIES -->
+        <section id="results-page" class="section" style="display:none">
+          <button class="text-button back-button" type="button"
+            onclick="showSection('topics')">← Back to Subjects</button>
+          <div class="page-heading">
+            <span class="eyebrow">YOUR LEARNING PATH</span>
+            <h1 id="results-title">Learning Resources</h1>
+            <p id="results-description">Choose a category to explore this topic.</p>
+          </div>
 
-    <h2>Search Results</h2>
+          <div class="category-grid">
+            <button onclick="openCategory('Notes & Summaries')" type="button">▤ <span>Notes & Summaries</span></button>
+            <button onclick="openCategory('Video Lectures')" type="button">▷ <span>Video Lectures</span></button>
+            <button onclick="openCategory('Research Papers')" type="button">⌕ <span>Research Papers</span></button>
+            <button onclick="openCategory('Articles')" type="button">▧ <span>Articles</span></button>
+            <button onclick="openCategory('Questions & MCQs')" type="button">✓ <span>Questions & MCQs</span></button>
+            <button onclick="openCategory('Assignments')" type="button">✎ <span>Assignments</span></button>
+            <button onclick="openCategory('Tests & MCQs')" type="button">☷ <span>Tests & MCQs</span></button>
+            <button onclick="openCategory('Experiments & Practicals')" type="button">⚗ <span>Experiments & Practicals</span></button>
+            <button onclick="openCategory('History & General Knowledge')" type="button">◷ <span>History & General Knowledge</span></button>
+            <button onclick="openCategory('Projects & Ideas')" type="button">✧ <span>Projects & Ideas</span></button>
+          </div>
 
-    <p id="results-topic">Your searched topic will appear here.</p>
+          <div class="panel ai-promo">
+            <div>
+              <h2>Need help understanding?</h2>
+              <p>Ask the AI assistant about your topic.</p>
+            </div>
+            <button class="primary-button" type="button"
+              onclick="showSection('ai-assistant-page')">Ask AI →</button>
+          </div>
+          <div id="learning-resources" class="results-grid"></div>
+        </section>
 
-    <div class="grid">
+        <!-- CATEGORY RESULTS -->
+        <section id="category-page" class="section" style="display:none">
+          <button class="text-button back-button" type="button"
+            onclick="showSection('results-page')">← Back to Categories</button>
+          <div class="page-heading">
+            <span class="eyebrow">LEARNING MATERIAL</span>
+            <h1 id="category-title">Resources</h1>
+            <p id="category-description">Explore resources for your topic.</p>
+          </div>
+          <div id="category-results" class="results-grid"></div>
+        </section>
 
-        <button onclick="openCategory('Notes & Summaries')">
-            Notes & Summaries
-        </button>
+        <!-- AI ASSISTANT -->
+        <section id="ai-assistant-page" class="section" style="display:none">
+          <div class="page-heading">
+            <span class="eyebrow">YOUR LEARNING COMPANION</span>
+            <h1>AI Study Assistant</h1>
+            <p>Ask a question, request an explanation or get help studying.</p>
+          </div>
+          <div class="ai-layout panel">
+            <div class="ai-notice">
+              <span class="feature-icon purple">✧</span>
+              <div>
+                <strong>Ask clearly to get useful help</strong>
+                <p>Try asking about a school topic, concept or practice question.</p>
+              </div>
+            </div>
+            <div id="chat-messages" class="chat-messages" aria-live="polite">
+              <div class="chat-message assistant-message">
+                <strong>AI Assistant</strong>
+                <p>Hi! What would you like to learn today?</p>
+              </div>
+            </div>
+            <form id="ai-form" class="ai-input-form">
+              <textarea id="ai-question" rows="2"
+                placeholder="Type your question here..." required></textarea>
+              <button id="ai-send-button" class="primary-button" type="submit">
+                Send ↑
+              </button>
+            </form>
+            <p class="small-note">AI responses may occasionally be inaccurate.
+              Check important information with trusted sources.</p>
+          </div>
+        </section>
 
-        <button onclick="openCategory('Research Papers')">
-            Research Papers
-        </button>
+        <!-- CALCULATOR -->
+        <section id="calculator" class="section" style="display:none">
+          <div class="page-heading">
+            <span class="eyebrow">MATH & COMPUTATION</span>
+            <h1>Smart Calculator</h1>
+            <p>Calculate basic operations, percentages, powers and more.</p>
+          </div>
+          <div class="panel calculator-panel">
+            <label for="calculator-mode">Choose calculation type</label>
+            <select id="calculator-mode">
+              <option value="basic">Basic operations</option>
+              <option value="scientific">Scientific functions</option>
+              <option value="percentage">Percentage</option>
+              <option value="power">Powers and roots</option>
+            </select>
 
-        <button onclick="openCategory('Articles')">
-            Articles
-        </button>
+            <div id="basic-calculator" class="calculator-mode">
+              <div class="form-grid">
+                <label>First number<input id="basic-num1" type="number" step="any"></label>
+                <label>Operation
+                  <select id="basic-operation">
+                    <option value="add">Addition (+)</option>
+                    <option value="subtract">Subtraction (−)</option>
+                    <option value="multiply">Multiplication (×)</option>
+                    <option value="divide">Division (÷)</option>
+                    <option value="modulo">Remainder (%)</option>
+                  </select>
+                </label>
+                <label>Second number<input id="basic-num2" type="number" step="any"></label>
+              </div>
+              <button id="basic-calculate" class="primary-button" type="button">Calculate</button>
+            </div>
 
-        <button onclick="openCategory('Video Lectures')">
-          Video Lectures
-        </button>
+            <div id="scientific-calculator" class="calculator-mode" hidden>
+              <label for="scientific-number">Number (degrees for trig functions)</label>
+              <input id="scientific-number" type="number" step="any">
+              <label for="scientific-operation">Function</label>
+              <select id="scientific-operation">
+                <option value="sqrt">Square root</option>
+                <option value="square">Square</option>
+                <option value="sin">Sine</option>
+                <option value="cos">Cosine</option>
+                <option value="tan">Tangent</option>
+                <option value="log">Log base 10</option>
+                <option value="ln">Natural log</option>
+                <option value="abs">Absolute value</option>
+              </select>
+              <button id="scientific-calculate" class="primary-button" type="button">Calculate</button>
+            </div>
 
-        <button onclick="openCategory('Questions & MCQs')">
-            Questions & MCQs
-        </button>
+            <div id="percentage-calculator" class="calculator-mode" hidden>
+              <label for="percentage-value">What percentage?</label>
+              <input id="percentage-value" type="number" step="any">
+              <label for="percentage-total">Of what number?</label>
+              <input id="percentage-total" type="number" step="any">
+              <button id="percentage-calculate" class="primary-button" type="button">Calculate</button>
+            </div>
 
-        <button onclick="openCategory('Assignments')">
-            Assignments
-        </button>
+            <div id="power-calculator" class="calculator-mode" hidden>
+              <label for="power-base">Base number</label>
+              <input id="power-base" type="number" step="any">
+              <label for="power-exponent">Power / exponent</label>
+              <input id="power-exponent" type="number" step="any">
+              <button id="power-calculate" class="primary-button" type="button">Calculate</button>
+            </div>
 
-        <button onclick="openCategory('Experiments & Practicals')">
-            Experiments & Practicals
-        </button>
+            <div id="calculator-result" class="calculator-result"
+              role="status" aria-live="polite">Your result will appear here.</div>
+          </div>
+        </section>
 
-       <button onclick="showSection('ai-assistant-page')">
-         AI Study Assistant
-        </button>
-        
+        <!-- RESOURCES -->
+        <section id="resources" class="section" style="display:none">
+          <div class="page-heading">
+            <span class="eyebrow">USEFUL LEARNING LINKS</span>
+            <h1>Free Resources</h1>
+            <p>Explore external platforms. Some services may require an account.</p>
+          </div>
+          <div class="resource-grid">
+            <a class="resource-card" href="https://www.khanacademy.org/"
+              target="_blank" rel="noopener noreferrer">
+              <span class="feature-icon blue">K</span>
+              <strong>Khan Academy</strong><span>Free lessons and practice.</span>
+              <span class="card-link">Visit website ↗</span>
+            </a>
+            <a class="resource-card" href="https://www.youtube.com/"
+              target="_blank" rel="noopener noreferrer">
+              <span class="feature-icon red">▷</span>
+              <strong>YouTube</strong><span>Video lectures and tutorials.</span>
+              <span class="card-link">Visit website ↗</span>
+            </a>
+            <a class="resource-card" href="https://scholar.google.com/"
+              target="_blank" rel="noopener noreferrer">
+              <span class="feature-icon green">G</span>
+              <strong>Google Scholar</strong><span>Search scholarly literature.</span>
+              <span class="card-link">Visit website ↗</span>
+            </a>
+            <a class="resource-card" href="https://openstax.org/"
+              target="_blank" rel="noopener noreferrer">
+              <span class="feature-icon orange">O</span>
+              <strong>OpenStax</strong><span>Free educational textbooks.</span>
+              <span class="card-link">Visit website ↗</span>
+            </a>
+            <a class="resource-card" href="https://www.phET.colorado.edu/"
+              target="_blank" rel="noopener noreferrer">
+              <span class="feature-icon purple">⚛</span>
+              <strong>PhET Simulations</strong><span>Interactive science and maths.</span>
+              <span class="card-link">Visit website ↗</span>
+            </a>
+            <a class="resource-card" href="https://www.britannica.com/"
+              target="_blank" rel="noopener noreferrer">
+              <span class="feature-icon blue">B</span>
+              <strong>Britannica</strong><span>Articles and reference information.</span>
+              <span class="card-link">Visit website ↗</span>
+            </a>
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="app-footer">
+        <span>© 2026 All-in-One Learning & Smart</span>
+        <span>Learn • Explore • Grow</span>
+      </footer>
     </div>
-    
-    <button onclick="showSection('search')">
-        Back to Search
-    </button>
+  </div>
 
-</section>
-<!-- AI Study Assistant Page -->
-<section id="ai-assistant-page" class="section">
-    <h1>AI Study Assistant</h1>
-    <p>Ask questions, learn new concepts, and explore ideas!</p>
+  <!-- Firebase Authentication -->
+  <script type="module">
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 
-    <div id="chat-messages">
-        <p><strong>AI Assistant:</strong> Hello! What would you like to learn today?</p>
-    </div>
-
-    <input
-        type="text"
-        id="ai-question"
-        placeholder="Ask your question..."
-    >
-
-    <button id="ai-send-button" type="button" onclick="askAI()">Send</button>
-    <button onclick="showSection('home')">Back to Home</button>
-</section>
-    </main>
-
-    <!-- FOOTER -->
-    <footer>
-        <p>
-            &copy; 2026 All-in-One Learning & Smart.
-            All rights reserved.
-        </p>
-
-        <button onclick="scrollToTop()">Back to Top</button>
-    </footer>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-
+   
   import {
     getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  sendPasswordResetEmail,
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js"; 
 
-  const firebaseConfig = {
-  ApiKey: "AIzaSyBtuOuItC7oOYeXuNi0VJ6rjEsvvdLoSaM",
-  authDomain: "all-in-one-learning-2a35c.firebaseapp.com",
-  projectId: "all-in-one-learning-2a35c",
-  storageBucket: "all-in-one-learning-2a35c.firebasestorage.app",
-  messagingSenderId: "190299061756",
-  appId: "1:190299061756:web:e1ca4227a2c9998f404679",
-  measurementId: "G-FWNN120KMB"
-  };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    // Use your existing Firebase project's exact configuration.
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtuOuItC7oOYeXuNi0VJ6rjEsvvdLoSaM",
+      authDomain: "all-in-one-learning-2a35c.firebaseapp.com",
+      projectId: "all-in-one-learning-2a35c",
+      storageBucket: "all-in-one-learning-2a35c.firebasestorage.app",
+      messagingSenderId: "190299061756",
+      appId: "1:190299061756:web:e1ca4227a2c9998f404679",
+      measurementId: "G-FWNN120KMB"
+    };
 
-  window.firebaseAuth = auth;
+    try {
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
 
-  window.firebaseFunctions = {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-  };
-</script>
+      window.firebaseAuth = auth;
+      window.firebaseFunctions = {
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+        sendPasswordResetEmail,
+        updateProfile,
+        GoogleAuthProvider,
+        signInWithPopup,
+      };
+      window.firebaseReady = true;
+      window.dispatchEvent(new Event("firebase-ready"));
+    } catch (error) {
+      console.error("Firebase initialization failed:", error);
+      window.firebaseReady = false;
+      window.dispatchEvent(new Event("firebase-ready"));
+    }
+  </script>
 
-    <!-- JAVASCRIPT FILE -->
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
