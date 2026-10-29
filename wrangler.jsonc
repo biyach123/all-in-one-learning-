@@ -1,5 +1,4 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "all-in-one-learnings",
   "main": "worker.js",
   "compatibility_date": "2026-10-29"
