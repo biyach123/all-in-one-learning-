@@ -1,89 +1,135 @@
 
 exports.handler = async function (event) {
-  if (event.httpMethod !== "POST") {
+  const headers = {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store"
+  };
+
+  function reply(statusCode, data) {
     return {
-      statusCode: 405,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: "Method not allowed." })
+      statusCode,
+      headers,
+      body: JSON.stringify(data)
     };
   }
 
-  try {
-    const { question } = JSON.parse(event.body || "{}");
+  if (event.httpMethod !== "POST") {
+    return reply(405, {
+      success: false,
+      message: "Please send a POST request."
+    });
+  }
 
-    if (!question || !question.trim()) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: "Please enter a question." })
-      };
+  try {
+    let body;
+
+    try {
+      body = JSON.parse(event.body || "{}");
+    } catch {
+      return reply(400, {
+        success: false,
+        message: "Invalid request data. Please try again."
+      });
+    }
+
+    const question = String(
+      body.question || body.topic || ""
+    ).trim();
+
+    if (!question) {
+      return reply(400, {
+        success: false,
+        message: "Please enter your question."
+      });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          message: "AI API key is not configured in Netlify."
-        })
-      };
+      console.error("GEMINI_API_KEY is missing.");
+
+      return reply(500, {
+        success: false,
+        message: "AI API key is missing in Netlify environment variables."
+      });
     }
 
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" +
-        apiKey,
+        encodeURIComponent(apiKey),
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text:
-                    "You are a helpful study assistant. Explain clearly in simple language. " +
-                    question
-                }
-              ]
-            }
-          ]
+          systemInstruction: {
+            parts: [{
+              text: "You are the AI assistant for All-in-One Learning & Smart. Answer accurately and helpfully. Explain difficult concepts in simple language. For educational questions, give clear step-by-step explanations. Match the language used by the user."
+            }]
+          },
+          contents: [{
+            role: "user",
+            parts: [{ text: question }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2048
+          }
         })
       }
     );
 
-    const data = await response.json();
+    const raw = await response.text();
 
-    if (!response.ok) {
-      console.error("Gemini error:", data);
-      return {
-        statusCode: 502,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: "Gemini API error. Check the API key and supported model."
-        })
-      };
+    let data = {};
+
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      console.error("Gemini returned a non-JSON response.");
+
+      return reply(502, {
+        success: false,
+        message: "AI returned an invalid response. Please try again."
+      });
     }
 
-    const answer = data.candidates?.[0]?.content?.parts
-      ?.map(part => part.text || "")
-      .join("\n");
+    if (!response.ok) {
+      console.error("Gemini API status:", response.status);
+      console.error("Gemini API error:", data.error?.message);
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        answer: answer || "No answer received. Please try again."
-      })
-    };
+      return reply(502, {
+        success: false,
+        message:
+          data.error?.message ||
+          "Gemini API request failed. Check your API key and model access."
+      });
+    }
+
+    const answer = (data.candidates?.[0]?.content?.parts || [])
+      .map(part => part.text || "")
+      .join("\n")
+      .trim();
+
+    if (!answer) {
+      return reply(502, {
+        success: false,
+        message: "AI did not return an answer. Please try again."
+      });
+    }
+
+    return reply(200, {
+      success: true,
+      answer: answer
+    });
+
   } catch (error) {
-    console.error("AI function error:", error);
+    console.error("ask-ai function error:", error);
 
-    return {
-      statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: "AI service failed. Check the function logs."
-      })
-    };
+    return reply(500, {
+      success: false,
+      message: "AI service failed. Please check the Netlify function logs."
+    });
   }
 };
