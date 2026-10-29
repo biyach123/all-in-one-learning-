@@ -691,13 +691,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const operations = {
-        add: () => a + b,
-        subtract: () => a - b,
-        multiply: () => a * b,
-        divide: () =>
-          b === 0 ? "Cannot divide by zero." : a / b
-      };
+     const operations = {
+  add: () => a + b,
+  subtract: () => a - b,
+  multiply: () => a * b,
+
+  divide: () =>
+    b === 0 ? "Cannot divide by zero." : a / b,
+
+  modulo: () =>
+    b === 0 ? "Cannot divide by zero." : a % b
+};
 
       showResult(
         operations[operation]
