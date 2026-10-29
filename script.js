@@ -713,40 +713,70 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Scientific operations
-  const scientificButton = $("scientific-calculate");
+ const scientificButton = $("scientific-calculate");
 
-  if (scientificButton) {
-    scientificButton.addEventListener("click", () => {
-      const value = getNumber("scientific-number");
-      const operations = {
-  square: () => value ** 2,
+if (scientificButton) {
+  scientificButton.addEventListener("click", () => {
+    const value = getNumber("scientific-number");
+    const angleInput = $("scientific-angle");
+    const angle = angleInput ? angleInput.value : "degrees";
+    const radians = angle === "degrees"
+      ? value * Math.PI / 180
+      : value;
 
-  sqrt: () =>
-    value < 0
-      ? "Square root needs a non-negative number."
-      : Math.sqrt(value),
+    const operations = {
+      square: () => value ** 2,
 
-  sin: () => Math.sin(radians),
-  cos: () => Math.cos(radians),
+      sqrt: () =>
+        value < 0
+          ? "Square root needs a non-negative number."
+          : Math.sqrt(value),
 
-  tan: () =>
-    Math.abs(Math.cos(radians)) < 1e-10
-      ? "Undefined for this angle."
-      : Math.tan(radians),
+      sin: () => Math.sin(radians),
+      cos: () => Math.cos(radians),
 
-  log: () =>
-    value <= 0
-      ? "Log needs a number greater than zero."
-      : Math.log10(value),
+      tan: () =>
+        Math.abs(Math.cos(radians)) < 1e-10
+          ? "Undefined for this angle."
+          : Math.tan(radians),
 
-  ln: () =>
-    value <= 0
-      ? "Natural log needs a number greater than zero."
-      : Math.log(value),
+      log: () =>
+        value <= 0
+          ? "Log needs a number greater than zero."
+          : Math.log10(value),
 
-  abs: () => Math.abs(value)
-};
-  }
+      ln: () =>
+        value <= 0
+          ? "Natural log needs a number greater than zero."
+          : Math.log(value),
+
+      abs: () => Math.abs(value)
+    };
+
+    const operationInput = $("scientific-operation");
+    const resultElement = $("scientific-result");
+
+    if (!operationInput || !resultElement) {
+      console.error("Scientific calculator elements not found.");
+      return;
+    }
+
+    const operation = operationInput.value;
+    const calculate = operations[operation];
+
+    if (!calculate) {
+      resultElement.textContent = "Please select a valid operation.";
+      return;
+    }
+
+    const result = calculate();
+
+    resultElement.textContent =
+      typeof result === "number" && !Number.isFinite(result)
+        ? "Result is undefined."
+        : String(result);
+  });
+}
 
   // Powers
   const powerButton = $("power-calculate");
