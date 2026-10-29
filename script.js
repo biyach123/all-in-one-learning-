@@ -621,27 +621,28 @@ document.addEventListener("DOMContentLoaded", () => {
   // --------------------------------------------------
 
   window.showCalculatorMode = (mode) => {
-    const modes = {
-      basic: "basic-calculator",
-      scientific: "scientific-calculator",
-      percentage: "percentage-calculator",
-      power: "power-calculator"
-    };
-
-    Object.entries(modes).forEach(([key, id]) => {
-      const panel = $(id);
-
-      if (panel) {
-        panel.style.display = key === mode ? "block" : "none";
-      }
-    });
-
-    const result = $("calculator-result");
-
-    if (result) {
-      result.textContent = "Result will appear here.";
-    }
+   const modes = {
+    basic: "basic-calculator",
+    scientific: "scientific-calculator",
+    percentage: "percentage-calculator",
+    power: "power-calculator"
   };
+
+  Object.entries(modes).forEach(([key, id]) => {
+    const panel = $(id);
+
+    if (panel) {
+      panel.hidden = key !== mode;
+      panel.style.display = key === mode ? "block" : "none";
+    }
+  });
+
+  const result = $("calculator-result");
+
+  if (result) {
+    result.textContent = "Result will appear here.";
+  }
+};
 
   const calculatorMode = $("calculator-mode");
 
