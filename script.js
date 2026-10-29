@@ -175,37 +175,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultsBox = $("smart-search-results");
     if (resultsBox) resultsBox.textContent = "Loading resources...";
 
-    try {
-      const response = await fetch("/.netlify/functions/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: cleanTopic })
-      });
+    
+      try {
+        const response = await fetch(
+          "https://all-in-one-learnings.hamidch0000.workers.dev/ask-ai",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ question })
+          }
+        );
 
-      const data = await response.json();
+        const raw = await response.text();
+        let data;
 
-      if (!response.ok) {
-        throw new Error(data.message || "Search could not be completed.");
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          throw new Error(
+            "Server returned an invalid response. Check Cloudflare Worker."
+          );
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || data.error || `Request failed: ${response.status}`
+          );
+        }
+
+        if (loadingBubble) {
+          loadingBubble.textContent =
+            data.answer || "No answer received. Please try again.";
+        }
+      } catch (error) {
+        if (loadingBubble) {
+          loadingBubble.textContent =
+            error.message || "Could not connect to the AI service.";
+        }
+        console.error("AI request error:", error);
       }
 
-      const results = Array.isArray(data.results) ? data.results : [];
-      currentTopic = cleanTopic;
-
-      const title = $("results-title");
-      if (title) title.textContent = `Learning resources: ${cleanTopic}`;
-
-      const description = $("results-description");
-      if (description) {
-        description.textContent = "Choose a category below or open a resource.";
-      }
-
-      renderResources($("learning-resources"), results);
-
-      if (resultsBox) renderResources(resultsBox, results);
-
-      setMessage("smart-search-message", "Resources are ready.");
-      showSection("results-page");
-    } catch (error) {
       const message = error.message || "Search failed. Please try again.";
       setMessage("smart-search-message", message, true);
       if (resultsBox) resultsBox.textContent = message;
