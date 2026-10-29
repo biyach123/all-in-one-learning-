@@ -967,6 +967,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // --------------------------------------------------
 
   const menuButton = $("menu-toggle");
+  const closeButton = document.getElementById("close-sidebar");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("sidebar-overlay");
+
+if (closeButton) {
+  closeButton.addEventListener("click", () => {
+    sidebar?.classList.remove("open", "active");
+    overlay?.classList.remove("visible", "active", "show");
+    document.body.classList.remove("sidebar-open");
+
+    if (overlay) {
+      overlay.style.display = "none";
+    }
+  });
+}
 
   if (menuButton) {
     menuButton.addEventListener("click", () => {
