@@ -713,67 +713,34 @@ document.addEventListener("DOMContentLoaded", () => {
   if (scientificButton) {
     scientificButton.addEventListener("click", () => {
       const value = getNumber("scientific-number");
-      const operation = $("scientific-operation")?.value;
-
-      if (value === null) {
-        showResult("Enter a valid number.");
-        return;
-      }
-
-      const radians = (value * Math.PI) / 180;
-
       const operations = {
-        square: () => value ** 2,
+  square: () => value ** 2,
 
-        squareRoot: () =>
-          value < 0
-            ? "Square root needs a non-negative number."
-            : Math.sqrt(value),
+  sqrt: () =>
+    value < 0
+      ? "Square root needs a non-negative number."
+      : Math.sqrt(value),
 
-        sin: () => Math.sin(radians),
-        cos: () => Math.cos(radians),
+  sin: () => Math.sin(radians),
+  cos: () => Math.cos(radians),
 
-        tan: () =>
-          Math.abs(Math.cos(radians)) < 1e-10
-            ? "Undefined for this angle."
-            : Math.tan(radians),
+  tan: () =>
+    Math.abs(Math.cos(radians)) < 1e-10
+      ? "Undefined for this angle."
+      : Math.tan(radians),
 
-        log: () =>
-          value <= 0
-            ? "Log needs a number greater than zero."
-            : Math.log10(value),
+  log: () =>
+    value <= 0
+      ? "Log needs a number greater than zero."
+      : Math.log10(value),
 
-        ln: () =>
-          value <= 0
-            ? "Natural log needs a number greater than zero."
-            : Math.log(value),
+  ln: () =>
+    value <= 0
+      ? "Natural log needs a number greater than zero."
+      : Math.log(value),
 
-        absolute: () => Math.abs(value)
-      };
-
-      showResult(
-        operations[operation]
-          ? operations[operation]()
-          : "Choose an operation."
-      );
-    });
-  }
-
-  // Percentage calculation
-  const percentageButton = $("percentage-calculate");
-
-  if (percentageButton) {
-    percentageButton.addEventListener("click", () => {
-      const percentage = getNumber("percentage-value");
-      const total = getNumber("percentage-total");
-
-      if (percentage === null || total === null) {
-        showResult("Enter a valid percentage and total.");
-        return;
-      }
-
-      showResult((percentage / 100) * total);
-    });
+  abs: () => Math.abs(value)
+};
   }
 
   // Powers
